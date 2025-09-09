@@ -5,50 +5,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Java 17
-        uses: actions/setup-java@v3
+      - uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
-          
       - name: Download Gradle 7.5
         run: |
           wget https://services.gradle.org/distributions/gradle-7.5-bin.zip
           unzip gradle-7.5-bin.zip
-          echo "GRADLE_HOME=$PWD/gradle-7.5" >> $GITHUB_ENV
           echo "$PWD/gradle-7.5/bin" >> $GITHUB_PATH
-          
-      - name: Setup Android SDK
-        run: |
-          # Скачиваем Command Line Tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-          unzip commandlinetools-linux-9477386_latest.zip
-          
-          # Создаем правильную структуру папок
-          mkdir -p android-sdk/cmdline-tools/latest
-          mv cmdline-tools/* android-sdk/cmdline-tools/latest/
-          
-          # Устанавливаем переменные окружения
-          echo "ANDROID_HOME=$PWD/android-sdk" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$PWD/android-sdk" >> $GITHUB_ENV
-          echo "$PWD/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          
-          # Даем права на выполнение
-          chmod +x $PWD/android-sdk/cmdline-tools/latest/bin/sdkmanager
-          
-          # Принимаем лицензии
-          yes | $PWD/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-          
-          # Устанавливаем компоненты
-          $PWD/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.0"
-          
       - name: Build APK
         run: |
           cd app
-          export PATH=$GRADLE_HOME/bin:$PATH
           gradle assembleDebug --no-daemon --warning-mode=none
-          
       - uses: actions/upload-artifact@v4
         with:
           name: Stealer-APK
