@@ -1,2 +1,23 @@
-- name: Build APK
-  run: ./gradlew assembleDebug --no-daemon
+name: Build APK
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: android-actions/setup-android@v3
+      - name: Debug structure
+        run: find . -name "*.gradle" -o -name "*.kt" -o -name "*.xml"
+      - name: Build
+        run: |
+          if [ -d "app" ]; then
+            cd app && ./gradlew assembleDebug --no-daemon
+          else
+            ./gradlew assembleDebug --no-daemon
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            build/outputs/apk/debug/*.apk
