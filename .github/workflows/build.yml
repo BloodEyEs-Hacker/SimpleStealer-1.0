@@ -6,18 +6,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: android-actions/setup-android@v3
-      - name: Debug structure
-        run: find . -name "*.gradle" -o -name "*.kt" -o -name "*.xml"
-      - name: Build
+      - name: Create gradlew if missing
+        run: |
+          if [ ! -f "./gradlew" ]; then
+              echo '#!/bin/sh' > gradlew
+              echo 'exec gradle "$@"' >> gradlew
+              chmod +x gradlew
+          fi
+      - name: Build APK
         run: |
           if [ -d "app" ]; then
-            cd app && ./gradlew assembleDebug --no-daemon
+              cd app && ../gradlew assembleDebug --no-daemon
           else
-            ./gradlew assembleDebug --no-daemon
+              ./gradlew assembleDebug --no-daemon
           fi
       - uses: actions/upload-artifact@v4
         with:
-          name: app
+          name: Stealer-APK
           path: |
             app/build/outputs/apk/debug/*.apk
             build/outputs/apk/debug/*.apk
