@@ -6,6 +6,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: android-actions/setup-android@v3
+      - name: Setup Gradle
+        run: |
+          cd app
+          gradle wrapper --gradle-version 7.5
+          chmod +x ./gradlew
       - name: Build APK
         run: |
           cd app
